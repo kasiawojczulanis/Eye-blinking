@@ -100,7 +100,7 @@ df_rate_rep <- left_join(df_rate, reps_metadt, by = "ring") %>%
   mutate(seas_ring = paste(season, "_", ring, sep = ""),
          set = "rep")
 
-rds_title <- "./Preprocessed data/df_rate_reps"
+rds_title <- "./Preprocessed data/df_rate_reps.RDS"
 saveRDS(df_rate_rep, rds_title)
 
 # individual apparently not processed twice (for now to be deleted, so n = 29)
@@ -108,7 +108,7 @@ df_rate_rep <- df_rate_rep [-18, ]
 
 # Read original set
 
-df_rate_orig <- readRDS("./Preprocessed data/df_allfiltered.RDS") 
+df_rate_orig <- readRDS("./Preprocessed data/df_all3_filtered.RDS") 
 df_rate_orig <- df_rate_orig %>% 
   select(filename, recording_duration, disturbance_duration, n_blinks, 
          valid_duration_time, eye_rate, season, ring) %>% 
@@ -120,12 +120,12 @@ df_rate_orig <- df_rate_orig %>%
 meas_rpt <- rbind(df_rate_orig, df_rate_rep)
 
 
-rds_title <- "C:/Users/User/Dropbox/Working files/Projects/Eye-blinking/Preprocessed data/measurments_rpt.RDS"
+rds_title <- "./Preprocessed data/observer_rpt.RDS"
 saveRDS(meas_rpt, rds_title)
 
 # Final analysis ----
 
-meas_rpt <- readRDS("./Preprocessed data/measurments_rpt.RDS")
+meas_rpt <- readRDS("./Preprocessed data/observer_rpt.RDS")
 
 # Plot
 ggplot(meas_rpt, aes(x = ring, y = eye_rate, 
