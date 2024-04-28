@@ -10,15 +10,18 @@ setwd("C:/Users/User/Dropbox")
 
 # To be performed season by season (for better quality/consistency check); enter the manually
 
-# seas <- "2019" #specific for the season - set measured by Emilia (which apparently has different way to annotate the blinking) - to be replaced by set measured by Felix
-# seas <- "2020" #specific for the season - set measured by Emilia (which apparently has different way to annotate the blinking) - to be replaced by set measured by Felix
+# seas <- "2019" #specific for the season
+# seas <- "2020" #specific for the season
 # seas <- "2021" #specific for the season
 # seas <- "2022" #specific for the season
 # seas <- "2023" #specific for the season
 
-
 # Folder with data
-path <- paste("./Working files/Projects/Eye-blinking/Raw data/eyeblinks_", seas, sep = "") # spec
+# path <- paste("./Working files/Projects/Eye-blinking/Raw data/eyeblinks_", seas, sep = "") # spec
+
+# Emilia's sets
+# path <- "./Working files/Projects/Eye-blinking/Raw data/eyeblinks_2019_Emilia"
+path <- "./Working files/Projects/Eye-blinking/Raw data/eyeblinks_2020_Emilia"
 
 
 # Proper loop for processing all the files in the saeson-folder
@@ -29,7 +32,7 @@ df_blinks <- list()
 for(i in 1:length(csvfile)) {
   
   df_temp <- read.csv(file = paste(path, csvfile[i], sep = "/"))
-  
+  df_temp
   
   # file/bird id
   filename <- csvfile[i]
@@ -101,6 +104,10 @@ df_rate <- df %>%
 
 # Save the temporary output
 # rds_title <- paste("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate", seas, ".RDS", sep = "")
+
+# Emilia's sets
+# rds_title <- paste("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019_Emilia.RDS")
+# rds_title <- paste("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2020_Emilia.RDS")
 # saveRDS(df_rate, rds_title)
 
 
@@ -108,11 +115,9 @@ df_rate <- df %>%
 
 # To be performed season by season; enter the manually
 
-
 # Sx data
 # sex() # generate the file (read the function from ./Metabases/scripts)
 sx <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/SHO_LIAK_sex_meta_2024-04-02.RDS")
-
 
 
 # Nest data - 2019 ----
@@ -122,13 +127,13 @@ capt19 <- capt19 %>%
   mutate(RingNo = as.character(RingNo))
 
 # Eye-rate data 2019
-# df_rate2019 <- df_rate
-df_rate2019 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019.RDS") 
+df_rate2019 <- df_rate
+# df_rate2019 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019.RDS")
 
 capt_sx <- left_join(capt19, sx, by = "RingNo")
 capt_sx <- capt_sx %>% 
   distinct() %>% # some inds capt >1
-  rename(ring = "RingNo") # to combined with dr_rate
+  rename(ring = "RingNo") # to combined with df_rate
 
 # 2019: rings to fix (X/wrong no)
 # 269X7 = 26937
@@ -160,8 +165,10 @@ df_rate2019 <- df_rate2019 %>%
 df_rate2019 <- left_join(df_rate2019, capt_sx, by = "ring")
 
 # Save final pre-processed data for 2019
-saveRDS(df_rate2019, "./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019.RDS") 
+# saveRDS(df_rate2019, "./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019.RDS") 
 
+# Emilia's set
+saveRDS(df_rate2019, "./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019_Emilia.RDS")
 
 
 # Nest data - 2020 ----
@@ -197,8 +204,10 @@ df_rate2020 <- df_rate2020 %>%
 df_rate2020 <- left_join(df_rate2020, capt_sx, by = "ring")
 
 # Save final pre-processed data for 2020
-saveRDS(df_rate2020, "./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2020.RDS") 
+# saveRDS(df_rate2020, "./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2020.RDS") 
 
+# Emilia's set
+# saveRDS(df_rate2020, "./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2020_Emilia.RDS")
 
 # Nest data - 2021 ----
 capt21 <- read_excel("./Liak2021/FieldData/CapturingDt2021.xlsx") 
@@ -213,10 +222,9 @@ df_rate2021 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/
 capt_sx <- left_join(capt21, sx, by = "RingNo")
 capt_sx <- capt_sx %>% 
   distinct() %>% # some inds capt >1
-  rename(ring = "RingNo") # to combined with dr_rate
+  rename(ring = "RingNo") # to combined with df_rate
 
 # 2021: rings to fix (X/wrong no) - apparently nothing here
-
 df_rate2021 <- left_join(df_rate2021, capt_sx, by = "ring")
 
 # Save final pre-processed data for 2021
@@ -273,7 +281,69 @@ saveRDS(df_rate2023, "./Working files/Projects/Eye-blinking/Preprocessed data/df
 
 
 
-# Filtering data ----
+# Observer effect ----- 
+
+# Two observers (Emilia: 2019, 2020)
+# Felix (2019, 2020 and then 2021, 2022, 2023)
+
+# Felix
+df_rate2019 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019.RDS")
+df_rate2020 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2020.RDS")
+
+# Emilia
+df_rate2019_Emilia <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019_Emilia.RDS")
+df_rate2020_Emilia <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2020_Emilia.RDS")
+
+Felix <- rbind(df_rate2019, df_rate2020) %>% 
+  mutate(observer = "Felix")
+Emilia <- rbind(df_rate2019_Emilia, df_rate2020_Emilia) %>% 
+  mutate(observer = "Emilia")
+
+obs_eff_dt <- rbind(Felix, Emilia)
+obs_eff_dt  <- obs_eff_dt %>% 
+  mutate(seas_id = paste0(season, "_", ring, sep = ""))
+
+# # data check
+# obs_eff_dt %>% 
+#   group_by(seas_id) %>% 
+#   summarise(n = n()) %>% 
+#   filter(n !=2)
+# 
+# # Suspicious record (turned out to be wrong nest/bird assigned - fixed)
+# obs_eff_dt %>% 
+#   filter(ring == "50225")
+
+
+# Observer effect
+ggplot(obs_eff_dt, aes(x = season, y = eye_rate, fill = observer)) + 
+  geom_boxplot() +
+  theme_bw()+
+  scale_fill_manual(values = c("tomato3", "steelblue4"))
+
+ggplot(obs_eff_dt, aes(x = observer, y = eye_rate, group = seas_id)) + 
+  geom_line() +
+  theme_bw()+
+  scale_fill_manual(values = c("tomato3", "steelblue4"))
+
+obs_eff_dt_wide <- obs_eff_dt %>% 
+  pivot_wider(names_from = observer, values_from = eye_rate, id_cols = seas_id)
+
+# Correlation 
+
+cor.test(obs_eff_dt_wide$Felix, obs_eff_dt_wide$Emilia)
+
+# Model rpt
+
+library(rptR)
+set.seed(130478)
+rpt_eye_observers <- rpt(eye_rate ~ 1 + (1 | seas_id), 
+                        data = obs_eff_dt,
+                        grname = "seas_id", nboot = 100,
+                        npermut = 100, datatype = "Gaussian")
+
+
+
+# Filtering ----
 
 # Much needed as there are some quite short recordings (arbitrary value set on 10 blinks)
 df_rate2019 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2019.RDS")
@@ -282,28 +352,19 @@ df_rate2021 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/
 df_rate2022 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2022.RDS")
 df_rate2023 <- readRDS("./Working files/Projects/Eye-blinking/Preprocessed data/df_rate2023.RDS")
 
-# Five seasons data but there are two observers (Emilia: 2019, 2020; Felix: 2021, 2022, 2023), and apparently there is an effect
+
+#  Five seasons with a single observer - Felix
 all_data_5seas <- rbind(df_rate2019, df_rate2020, df_rate2021, df_rate2022, df_rate2023)
-all_data_5seas_filtered <- all_data_5seas %>% # data filtering/see below
-  filter(n_blinks >=10) %>% 
-  mutate(observer = if_else(season %in% c("2019", "2020"), "Emilia", "Felix"))
-
-
-# Observer effect
-
-ggplot(all_data_5seas_filtered, aes(x = season, y = eye_rate, fill = observer)) + 
-  geom_boxplot() +
-  theme_bw()+
-  scale_fill_manual(values = c("tomato3", "steelblue4"))
-
-
-
-# For now only the three sets are considerd (single observer - Felix)
-all_data_3seas <- rbind(df_rate2021, df_rate2022, df_rate2023)
 
 # Filtering (threshold: 10 blinks - established arbitrary)
 
-all_data_3seas_filtered <- all_data_3seas %>% 
+all_data_5seas_filtered <- all_data_5seas %>% 
   filter(n_blinks >=10)
 
-saveRDS(all_data_3seas_filtered, "./Working files/Projects/Eye-blinking/Preprocessed data/df_all3_filtered.RDS") 
+saveRDS(all_data_5seas_filtered, "./Working files/Projects/Eye-blinking/Preprocessed data/df_all5_filtered.RDS") 
+
+# Data check
+# ggplot(all_data_5seas_filtered, aes(x = season, y = eye_rate)) + 
+#   geom_boxplot() +
+#   theme_bw()+
+#   scale_fill_manual(values = c("tomato3", "steelblue4"))
