@@ -10,13 +10,13 @@ library(readxl)
 library(magrittr)
 
 # Read data ----
-df_all3_filtered  <- readRDS("./Preprocessed data/df_all3_filtered.RDS") 
+df_all5_filtered  <- readRDS("./Preprocessed data/df_all5_filtered.RDS") 
 
 
 # Prepare data -----
 
 # list of complete nest (m+f = 2) 
-compl_nests <- df_all3_filtered %>% 
+compl_nests <- df_all5_filtered %>% 
   group_by(season, Nest, Sx) %>% 
   summarise(n = n()) %>% 
   group_by(Nest) %>% 
@@ -26,7 +26,7 @@ compl_nests <- df_all3_filtered %>%
 compl_nests <- compl_nests$Nest
 
 # select data
-df_rate_assortativity <- df_all3_filtered %>% 
+df_rate_assortativity <- df_all5_filtered %>% 
   filter(Nest %in% compl_nests,
          !is.na(Sx)) %>% 
   select(Nest, Sx, eye_rate) %>% 
@@ -37,12 +37,15 @@ df_rate_assortativity <- df_all3_filtered %>%
 df_rate_assortativity <- pivot_wider(data = df_rate_assortativity, 
                                      names_from = Sx, 
                                      values_from = mean_eye_rate)
+df_rate_assortativity <- df_rate_assortativity %>% 
+  filter(!is.na(f) & !is.na(m))
 
 saveRDS(df_rate_assortativity, "./Preprocessed data/df_rate_assortativity.RDS")
 
 # Analysis ---
 
 df_rate_assortativity <- readRDS("./Preprocessed data/df_rate_assortativity.RDS")
+
 
 # Plot
 ggplot(df_rate_assortativity, aes(x = f, y = m)) + 
@@ -74,6 +77,6 @@ ggplot(xcor, aes(xcor)) +
   scale_x_continuous(expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0))
 
-
+p.val <- sum(xcor$xcor<=xobs)/N; p.val
 
 

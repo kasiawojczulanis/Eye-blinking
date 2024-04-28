@@ -10,13 +10,13 @@ library(readxl)
 library(magrittr)
 
 # Read data ----
-df_all3_filtered  <- readRDS("./Preprocessed data/df_all3_filtered.RDS") 
+df_all5_filtered  <- readRDS("./Preprocessed data/df_all5_filtered.RDS") 
 
 
 # Prepare data -----
 
 # list of repeated inds
-n_rep_ind <- df_all3_filtered %>% 
+n_rep_ind <- df_all5_filtered %>% 
   group_by(ring, Sx) %>% 
   summarise(n = n()) %>% 
   filter(n > 1)
@@ -28,7 +28,7 @@ n_rep_ind %>%
   rename(N_measurments = "n")
 
 # select inds for the analysis (sampled >1)
-df_rate_rep_sel <- df_all3_filtered %>% 
+df_rate_rep_sel <- df_all5_filtered %>% 
   filter(ring %in% n_rep_ind$ring) 
 
 # Model ----

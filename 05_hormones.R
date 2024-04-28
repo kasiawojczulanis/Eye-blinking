@@ -30,7 +30,10 @@ horms_inc <- horms %>%
   mutate(ring = as.character(BirdID)) 
 
 horms_inc_blinks <- left_join(df_rate2019, horms_inc, by = "ring")
+horms_inc_blinks <- horms_inc_blinks %>% 
+  filter(!is.na(eye_rate) & !is.na((Concentration)))
 
+         
 # Analysis ----
 
 # Plot
@@ -63,7 +66,7 @@ xcor <- data.frame(xcor)
 
 ggplot(xcor, aes(xcor)) + 
   geom_density(fill = "grey") +
-  geom_vline(aes(xintercept = xobs)) +
+  geom_vline(aes(xintercept = horm_cor)) +
   theme_classic() +
   scale_x_continuous(expand = c(0,0)) +
   scale_y_continuous(expand = c(0,0)) +
